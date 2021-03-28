@@ -26,36 +26,32 @@
 
 -module(eg12_test).
 -include_lib("eunit/include/eunit.hrl").
--define(IMAGE_DIR, "../test/images/").
+-define(IMAGE_DIR, "./test/images/").
 
 %% ============================================================================
 run_test() ->
-  {timeout, 100, [fun report/0]}.
-
-report()->
     ?debugMsg("Begin Test"),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF,a4),
-    eg_pdf:set_page(PDF,1),
-    
-    eg_pdf:set_font(PDF, "Victorias-Secret", 14),  
+    eg_pdf:set_pagesize(PDF, a4),
+    eg_pdf:set_page(PDF, 1),
+
+    eg_pdf:set_font(PDF, "Victorias-Secret", 14),
     eg_pdf_lib:moveAndShow(PDF, 50, 20, "Type 6"),
 
-    
+
     eg_pdf:save_state(PDF),
-    eg_pdf:set_fill_color(PDF,gainsboro),
-    eg_pdf:rectangle(PDF, 50,35,240,320, fill),
-    io:format("Patience, this takes a bit.",[]),
-    case eg_pdf:image(PDF,?IMAGE_DIR ++ "dice.png",{50,35}, {240,320}) of
-	{error, Reason} -> 
-	    io:format("Image processing error with file ~s~n",[Reason]);
-	ok -> 
-	    ok
+    eg_pdf:set_fill_color(PDF, gainsboro),
+    eg_pdf:rectangle(PDF, 50, 35, 240, 320, fill),
+    io:format("Patience, this takes a bit.", []),
+    case eg_pdf:image(PDF, ?IMAGE_DIR ++ "dice.png", {50, 35}, {240, 320}) of
+        {error, Reason} ->
+            io:format("Image processing error with file ~s~n", [Reason]);
+        ok ->
+            ok
     end,
 
     eg_pdf:restore_state(PDF),
 
     {Serialised, _PageNo} = eg_pdf:export(PDF),
-    file:write_file("./eg_test12.pdf",[Serialised]),
+    file:write_file("./ebin/eg_test12.pdf", [Serialised]),
     eg_pdf:delete(PDF).
-

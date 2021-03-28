@@ -25,55 +25,54 @@
 %%==========================================================================
 
 -module(eg3_test).
--include("eg.hrl").
+-include("../include/eg.hrl").
 -include_lib("eunit/include/eunit.hrl").
--define(IMAGE_DIR, "../test/images/").
+-define(IMAGE_DIR, "./test/images/").
 -import(eg_pdf, [picas/1]).
 
 %% ============================================================================
 
 box(PDF, Color, X, Y, W, H) ->
-    eg_pdf:set_fill_color(PDF, Color), 
-    eg_pdf:rectangle(PDF,{X, Y},{W,H}),
-    eg_pdf:path(PDF,fill),
-    eg_pdf:set_fill_color(PDF,black).
-    
+    eg_pdf:set_fill_color(PDF, Color),
+    eg_pdf:rectangle(PDF, {X, Y}, {W, H}),
+    eg_pdf:path(PDF, fill),
+    eg_pdf:set_fill_color(PDF, black).
+
 
 run_test() ->
     ?debugMsg("Begin Test"),
-    PDF = eg_pdf:new(),    
-    eg_pdf:set_pagesize(PDF,a4),
-    eg_pdf:set_page(PDF,1),
+    PDF = eg_pdf:new(),
+    eg_pdf:set_pagesize(PDF, a4),
+    eg_pdf:set_page(PDF, 1),
     eg_pdf_lib:showGrid(PDF, a4),
     PtSize24 = 24,
     TagMap24 = eg_xml2richText:default_tagMap(PtSize24),
-    box(PDF, moccasin, 50, 300, 225, 350), 
+    box(PDF, moccasin, 50, 300, 225, 350),
     eg_block:block(PDF, gold, xml(title), 20, 830, picas(66), PtSize24, 24, 1, justified, TagMap24),
-    
+
     PtSize14 = 14,
     TagMap14 = eg_xml2richText:default_tagMap(PtSize14),
     eg_block:block(PDF, xml(simple), 60, 650, picas(35), PtSize14, 16, 5, justified, TagMap14),
     eg_block:block(PDF, xml(simple), 60, 560, picas(30), PtSize14, 16, 5, justified, TagMap14),
     eg_block:block(PDF, xml(romanAndCourier1), 60, 360, picas(35), PtSize14, 16, 7, justified, TagMap14),
-    
+
     PtSize12 = 12,
     TagMap12 = eg_xml2richText:default_tagMap(PtSize12),
     eg_block:block(PDF, palegreen, xml(complex), 400, 600, picas(26), PtSize12, 14, 22, justified, TagMap12),
     eg_block:block(PDF, xml(5), 60, 450, picas(35), PtSize12, 14, 6, justified, TagMap12),
-    
+
     PtSize18 = 18,
-    TagMap18 = eg_xml2richText:default_tagMap(PtSize18),    
+    TagMap18 = eg_xml2richText:default_tagMap(PtSize18),
     eg_block:block(PDF, whitesmoke, xml(two), 300, 760, picas(44), PtSize18, 20, 3, justified, TagMap18),
-    
+
     PtSize8 = 8,
     TagMap8 = eg_xml2richText:default_tagMap(PtSize8),
-    eg_block:block(PDF, azure, xml(narrow), 280, 650, picas(16), PtSize8,10, 38, justified, TagMap8),
-    
-    eg_pdf:image(PDF,?IMAGE_DIR ++ 'joenew.jpg',{50, 650},{width,200}),
-    {Serialised, _PageNo} = eg_pdf:export(PDF),
-    file:write_file("./eg_test3.pdf",[Serialised]),
-    eg_pdf:delete(PDF).
+    eg_block:block(PDF, azure, xml(narrow), 280, 650, picas(16), PtSize8, 10, 38, justified, TagMap8),
 
+    eg_pdf:image(PDF, ?IMAGE_DIR ++ 'joenew.jpg', {50, 650}, {width, 200}),
+    {Serialised, _PageNo} = eg_pdf:export(PDF),
+    file:write_file("./ebin/eg_test3.pdf", [Serialised]),
+    eg_pdf:delete(PDF).
 
 
 %%----------------------------------------------------------------------

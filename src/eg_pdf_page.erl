@@ -86,12 +86,12 @@
 -module(eg_pdf_page).
 
 -export([page/3,
-	 append_page/2, 
-	 append_page2tree/2, 
-	 append_to_page/3, 
-	 get_page/2, 
-	 get_page_contents/2, 
-	 page_tree/5]).
+    append_page/2,
+    append_page2tree/2,
+    append_to_page/3,
+    get_page/2,
+    get_page_contents/2,
+    page_tree/5]).
 
 %% ============================================================================
 
@@ -101,98 +101,98 @@
 %% Option = {'"LastModified"', date()} | {'"Resources"', dict() } | 
 %% {'"Annots"', array() } | {Key, pdftype()}
 page(ParentRef, ContentsRef, Options) ->
-    {dict, [{"Type", {name,"Page"}},
-	    {"Parent", {ptr,ParentRef,0}},
-	    {"Contents", {ptr, ContentsRef, 0}}
-	    | lists:map( fun page_opt/1, Options ) ]}.
+    {dict, [{"Type", {name, "Page"}},
+        {"Parent", {ptr, ParentRef, 0}},
+        {"Contents", {ptr, ContentsRef, 0}}
+        | lists:map(fun page_opt/1, Options)]}.
 
 page_opt({"LastModified" = A, {date, Date}}) ->
-    {A,{date, Date}};
-page_opt({"Resources", {dict,_}} = A) ->
+    {A, {date, Date}};
+page_opt({"Resources", {dict, _}} = A) ->
     A;
-page_opt({"Resources", {ptr,_,_}} = A) ->
+page_opt({"Resources", {ptr, _, _}} = A) ->
     A;
-page_opt({"Annots", _}=A ) ->
+page_opt({"Annots", _} = A) ->
     A;
-page_opt({A,B}) ->
-    {A,B}.
+page_opt({A, B}) ->
+    {A, B}.
 
 %% @spec page_tree(KidRefs, FontsPtr::ptr(), XObjectsPtr::ptr(), 
 %%                 MediaBox::rect(), ProcSet) -> dict()
 %% KidRefs = [ number() ]
 %% ProcSet = imageb | imagec | imagebc
 %% @doc Creates a Pages (Page Tree) dictionary
-page_tree(KidRefs, FontsPtr, XObjectsPtr, MediaBox = {rect, {_A, _B, _C, _D}}, 
-	  ProcSet ) ->
+page_tree(KidRefs, FontsPtr, XObjectsPtr, MediaBox = {rect, {_A, _B, _C, _D}},
+    ProcSet) ->
     ImProcSet = case ProcSet of
-		    imagebc -> [{name, "ImageB"},{name, "ImageC"}];
-		    imageb -> [{name, "ImageB"}];
-		    imagec -> [{name, "ImageC"}];
-		    _ -> []
-		end,
-    {dict,[{"Type",{name,"Page"}},
-	   {"Count",length(KidRefs)},
-	   {"MediaBox", MediaBox },
-	   {"Kids",{array, lists:map(fun(I) ->{ptr,I,0} end, KidRefs)}},
-	   {"Resources",
-	    {dict,[{"Font", FontsPtr },{"XObject", XObjectsPtr },
-		   {"ProcSet", {array,[{name,"PDF"},{name,"Text"} | 
-				       ImProcSet]}}]}}]}.
+                    imagebc -> [{name, "ImageB"}, {name, "ImageC"}];
+                    imageb -> [{name, "ImageB"}];
+                    imagec -> [{name, "ImageC"}];
+                    _ -> []
+                end,
+    {dict, [{"Type", {name, "Page"}},
+        {"Count", length(KidRefs)},
+        {"MediaBox", MediaBox},
+        {"Kids", {array, lists:map(fun(I) -> {ptr, I, 0} end, KidRefs)}},
+        {"Resources",
+            {dict, [{"Font", FontsPtr}, {"XObject", XObjectsPtr},
+                {"ProcSet", {array, [{name, "PDF"}, {name, "Text"} |
+                    ImProcSet]}}]}}]}.
 
 
 append_page(PageContents, Objects) ->
     PageTreeObj = get_tree_obj(Objects),
     PTRef = eg_pdf_lib:get_ref(PageTreeObj),
-    {ContentRef,Objects1} = eg_pdf_lib:add_object({stream, PageContents}, 
-						  Objects),
-    {PageRef, Objects2}   = eg_pdf_lib:add_object(page(PTRef,ContentRef,[]), 
-						  Objects1),
+    {ContentRef, Objects1} = eg_pdf_lib:add_object({stream, PageContents},
+        Objects),
+    {PageRef, Objects2} = eg_pdf_lib:add_object(page(PTRef, ContentRef, []),
+        Objects1),
     NewPTreeItem = append_page2tree(PageRef, eg_pdf_lib:pdf_item(PageTreeObj)),
     Objects3 = eg_pdf_lib:store_object(
-		 eg_pdf_lib:make_object(PTRef, NewPTreeItem),  Objects2),
+        eg_pdf_lib:make_object(PTRef, NewPTreeItem), Objects2),
     Objects3.
 
 
 append_page2tree(Ref, PageTreeItem) ->
     Key = "Kids",
     {array, Kids} = eg_pdf_lib:find_in_dict(Key, PageTreeItem),
-    NewKids = Kids ++ [{ptr, Ref, 0}], 
+    NewKids = Kids ++ [{ptr, Ref, 0}],
     eg_pdf_lib:store_in_dict({Key, {array, NewKids}}, PageTreeItem).
 
 get_page(PageNo, Objects) ->
     PageTreeObj = get_tree_obj(Objects),
-    PageTree = eg_pdf_lib:pdf_item(PageTreeObj), 
+    PageTree = eg_pdf_lib:pdf_item(PageTreeObj),
     {array, Kids} = eg_pdf_lib:find_in_dict("Kids", PageTree),
     PagePtr = lists:nth(PageNo, Kids),
     case eg_pdf_lib:search_object(PagePtr, Objects) of
-	{value, Object} ->
-	    Object;
-	false ->
-	    no_page_available
+        {value, Object} ->
+            Object;
+        false ->
+            no_page_available
     end.
 
 get_tree_obj(Objects) ->
     Pages = eg_pdf_lib:get_objects_of_type("Page", Objects),
-    DropWhile = fun (P) -> eg_pdf_lib:pdf_object_dict_item("Parent", P) =/=
-			   undefined
-		end,
-    [PageTreeObj|_] = lists:dropwhile(DropWhile, Pages),
+    DropWhile = fun(P) -> eg_pdf_lib:pdf_object_dict_item("Parent", P) =/=
+        undefined
+                end,
+    [PageTreeObj | _] = lists:dropwhile(DropWhile, Pages),
     PageTreeObj.
 
 get_page_contents(PageObj, Objects) ->
     PageDict = eg_pdf_lib:pdf_item(PageObj),
     case eg_pdf_lib:find_in_dict("Contents", PageDict) of
-	{ptr, _I, _J} = Ptr ->
-	    {value, Object} = eg_pdf_lib:search_object(Ptr, Objects),
-	    Object;
-	PtrList ->
-	    lists:map(fun(Ptr) ->
-		      {value, Object} = eg_pdf_lib:search_object(Ptr, Objects),
-		      Object 
-		      end, PtrList)
+        {ptr, _I, _J} = Ptr ->
+            {value, Object} = eg_pdf_lib:search_object(Ptr, Objects),
+            Object;
+        PtrList ->
+            lists:map(fun(Ptr) ->
+                {value, Object} = eg_pdf_lib:search_object(Ptr, Objects),
+                Object
+                      end, PtrList)
     end.
 
-append_to_page(S, PageObj, Objects) ->    
+append_to_page(S, PageObj, Objects) ->
     {Key, {stream, Str}} = get_page_contents(PageObj, Objects),
     eg_pdf_lib:store_object({Key, {stream, Str ++ S}}, Objects).
 

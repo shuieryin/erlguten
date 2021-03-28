@@ -5,3 +5,8 @@ apps/erlguten/ebin
 dev/*
 rel/erlguten
 .DS_Store
+*.iml
+.idea
+ebin
+*.bin
+rebar.lock

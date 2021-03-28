@@ -26,29 +26,29 @@
 
 -module(eg11_test).
 -include_lib("eunit/include/eunit.hrl").
--define(IMAGE_DIR, "../test/images/").
+-define(IMAGE_DIR, "./test/images/").
 %% ============================================================================
 
-run_test()->
+run_test() ->
     ?debugMsg("Test Begin"),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF,a4),
-    eg_pdf:set_page(PDF,1),
-    eg_pdf:set_font(PDF, "Victorias-Secret", 14),    
+    eg_pdf:set_pagesize(PDF, a4),
+    eg_pdf:set_page(PDF, 1),
+    eg_pdf:set_font(PDF, "Victorias-Secret", 14),
     eg_pdf_lib:moveAndShow(PDF, 350, 185, "Type 4"),
-    
+
     eg_pdf:save_state(PDF),
-    eg_pdf:set_fill_color(PDF,red),
-    eg_pdf:rectangle(PDF, 350,200,16,16, fill),
+    eg_pdf:set_fill_color(PDF, red),
+    eg_pdf:rectangle(PDF, 350, 200, 16, 16, fill),
     eg_pdf:restore_state(PDF),
-        
+
     eg_pdf:save_state(PDF),
-    eg_pdf:set_fill_color(PDF,red),
-    eg_pdf:rectangle(PDF, 340,480,56,56, fill),
-    eg_pdf:image(PDF,?IMAGE_DIR ++ "page_white_text.png", {350,500},{height,16}),
+    eg_pdf:set_fill_color(PDF, red),
+    eg_pdf:rectangle(PDF, 340, 480, 56, 56, fill),
+    eg_pdf:image(PDF, ?IMAGE_DIR ++ "page_white_text.png", {350, 500}, {height, 16}),
     eg_pdf:restore_state(PDF),
-    
+
     {Serialised, _PageNo} = eg_pdf:export(PDF),
-    file:write_file("./eg_test11.pdf",[Serialised]),
+    file:write_file("./ebin/eg_test11.pdf", [Serialised]),
     eg_pdf:delete(PDF).
 

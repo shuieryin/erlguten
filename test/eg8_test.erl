@@ -30,33 +30,31 @@
 
 %% ============================================================================
 
-run_test()->
+run_test() ->
     ?debugMsg("Begin Test"),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF,letter),
-    eg_pdf:set_page(PDF,1),
+    eg_pdf:set_pagesize(PDF, letter),
+    eg_pdf:set_page(PDF, 1),
 
     Fonts = #table{},
-    
-    Rows = [{row,[],
-        [{cell,[],[{b,[], [{raw, "Version"}]}]},
-         {cell,[],[{b,[], [{raw, "Status"}]}]}]}
+
+    Rows = [{row, [],
+        [{cell, [], [{b, [], [{raw, "Version"}]}]},
+            {cell, [], [{b, [], [{raw, "Status"}]}]}]}
         ,
-        {row,[],
-          [{cell,[],[{raw, "0.1"}]},
-           {cell,[],[{raw, "Ready"}]}]}],
-           
-           
-    
-   _Var = eg_table:table(PDF, Rows, 50, 450,700,50,10, Fonts),
+        {row, [],
+            [{cell, [], [{raw, "0.1"}]},
+                {cell, [], [{raw, "Ready"}]}]}],
+
+
+    _Var = eg_table:table(PDF, Rows, 50, 450, 700, 50, 10, Fonts),
 
     A = "<row><cell>Heading 1</cell><cell>Heading 2</cell><cell>Heading 3</cell></row>
       <row><cell>Content 1</cell><cell>Content 2</cell><cell>Content 3</cell></row>",
     B = eg_xml_lite:parse_all_forms(A),   % parse the xml stream
-    [{xml,C},{xml,D}] = B,                % remove the stuff that "table" doesn't want
-    _Var2 = eg_table:table(PDF, [C,D], 120,300,500,50,10, Fonts),
-    
-    
+    [{xml, C}, {xml, D}] = B,                % remove the stuff that "table" doesn't want
+    _Var2 = eg_table:table(PDF, [C, D], 120, 300, 500, 50, 10, Fonts),
+
 
     A1 = "<row><cell>Escape Sequence</cell><cell>Value</cell></row>
       <row><cell>\\b</cell><cell>Backspace</cell></row>
@@ -72,19 +70,19 @@ run_test()->
       <row><cell>\\^a..\\^z or \\^A..\\^Z</cell><cell>Ctrl+A to Ctrl+Z</cell></row>
       <row><cell>\\'</cell><cell>Single quote</cell></row>",
 
-    _Var3 = eg_table:table_from_xml(PDF, A1, 120,400,350,50,10, Fonts),
-    
+    _Var3 = eg_table:table_from_xml(PDF, A1, 120, 400, 350, 50, 10, Fonts),
+
     Smaller = "<row><cell>Escape Sequence</cell><cell>Value</cell></row>
       <row><cell>\\b</cell><cell>Backspace</cell></row>
       <row><cell>\\d</cell><cell>Delete</cell></row>
-      <row><cell>\\e</cell><cell>Escape</cell></row>",  
-      
-    _Var4 = eg_table:table_from_xml(PDF, Smaller, 350,150,700,50,10, Fonts),
-    _Var5 = eg_table:table_from_xml(PDF, Smaller, 350,250,550,50,14, Fonts),
-    _Var6 = eg_table:table_from_xml(PDF, Smaller, 350,300,300,50,18, Fonts), 
+      <row><cell>\\e</cell><cell>Escape</cell></row>",
+
+    _Var4 = eg_table:table_from_xml(PDF, Smaller, 350, 150, 700, 50, 10, Fonts),
+    _Var5 = eg_table:table_from_xml(PDF, Smaller, 350, 250, 550, 50, 14, Fonts),
+    _Var6 = eg_table:table_from_xml(PDF, Smaller, 350, 300, 300, 50, 18, Fonts),
 
     {Serialised, _PageNo} = eg_pdf:export(PDF),
-    file:write_file("./eg_test8.pdf",[Serialised]),
+    file:write_file("./ebin/eg_test8.pdf", [Serialised]),
     eg_pdf:delete(PDF),
     test_done.
 

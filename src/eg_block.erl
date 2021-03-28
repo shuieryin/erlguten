@@ -25,10 +25,10 @@
 %% Purpose: Add API call to create a table in a document.
 %%==========================================================================
 
--module (eg_block).
+-module(eg_block).
 
--export([block/11, block/10,  colored_inner_block/11, inner_block/10]).
-    
+-export([block/11, block/10, colored_inner_block/11, inner_block/10]).
+
 -include("../include/eg.hrl").
 
 
@@ -81,66 +81,66 @@
 block(PDF, Color, Sample, X, Y, Measure, PtSize, Leading, NLines, Justification, TagMap) ->
     Width = Measure + 20,
     Ht = (NLines * Leading) + 20,
-    box(PDF, Color, X, Y-Ht+10, Width, Ht),
-    block(PDF, Sample, X+10, Y , Measure, PtSize, Leading, NLines, Justification, TagMap).
+    box(PDF, Color, X, Y - Ht + 10, Width, Ht),
+    block(PDF, Sample, X + 10, Y, Measure, PtSize, Leading, NLines, Justification, TagMap).
 
 %% @doc process a parsed XML block of content into a block of PDf text with a color background 
-   
+
 colored_inner_block(PDF, Color, Sample, X, Y, Measure, PtSize, Leading, NLines, Justification, TagMap) ->
     Width = Measure + 20,
     Ht = (NLines * Leading) + 20,
-    box(PDF, Color, X, Y-Ht+10, Width, Ht),
-    inner_block(PDF, Sample, X+10, Y-10, Measure, PtSize, Leading, NLines, Justification, TagMap).
+    box(PDF, Color, X, Y - Ht + 10, Width, Ht),
+    inner_block(PDF, Sample, X + 10, Y - 10, Measure, PtSize, Leading, NLines, Justification, TagMap).
 
 %% @doc process an XML block of content into a block of PDf text with a blank background
-       
+
 block(PDF, Sample, X, Y, Measure, PtSize, Leading, NLines, Justification, TagMap) ->
-    inner_block(PDF, eg_xml_lite:parse_all_forms(Sample),X, Y, Measure, PtSize, Leading, NLines, Justification, TagMap).
+    inner_block(PDF, eg_xml_lite:parse_all_forms(Sample), X, Y, Measure, PtSize, Leading, NLines, Justification, TagMap).
 
 %% @doc process a parsed XML block of content into a block of PDf text with a blank background
 
 inner_block(PDF, [{raw, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap) ->
-   block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
-   ok;
+    block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
+    ok;
 inner_block(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap) ->
-   block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
-   ok;
+    block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
+    ok;
 inner_block(PDF, [{xml, Xml} | T], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap) ->
-  Height = block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
-   inner_block(PDF, T, X, Y - Height, Len, PtSize, Leading, NLines, Justification, TagMap).
+    Height = block2(PDF, [{xml, Xml}], X, Y, Len, PtSize, Leading, NLines, Justification, TagMap),
+    inner_block(PDF, T, X, Y - Height, Len, PtSize, Leading, NLines, Justification, TagMap).
 
-    
+
 block2(PDF, [{xml, Xml}], X, Y, Len, _PtSize, Leading, NLines, Justification, TagMap) ->
     ensure_fonts_are_loaded(PDF, TagMap),
     Norm = eg_xml2richText:normalise_xml(Xml, TagMap),
     %% io:format("Norm=~p~n",[Norm]),
     {p, _, RichText} = Norm,
-    Widths = [Len-20|lists:duplicate(NLines-1, Len)],
-    Off = [20|lists:duplicate(NLines-1, 0)],
-    case eg_line_break:break_richText(RichText, { Justification, Widths}) of
-	impossible ->
-	    io:format("Cannot break line are widths ok~n");
-	{Lines,_,_} ->
-	    Code = eg_richText2pdf:richText2pdf(PDF, X, Y, justified, 0, Lines, 
-						Leading, Widths, Off),
-	    eg_pdf:begin_text(PDF),
-	    eg_pdf:append_stream(PDF, Code),
-	    eg_pdf:end_text(PDF),
-	    length(Lines) * Leading
+    Widths = [Len - 20 | lists:duplicate(NLines - 1, Len)],
+    Off = [20 | lists:duplicate(NLines - 1, 0)],
+    case eg_line_break:break_richText(RichText, {Justification, Widths}) of
+        impossible ->
+            io:format("Cannot break line are widths ok~n");
+        {Lines, _, _} ->
+            Code = eg_richText2pdf:richText2pdf(PDF, X, Y, justified, 0, Lines,
+                Leading, Widths, Off),
+            eg_pdf:begin_text(PDF),
+            eg_pdf:append_stream(PDF, Code),
+            eg_pdf:end_text(PDF),
+            length(Lines) * Leading
 
-    end.  
-    
+    end.
+
 
 box(PDF, Color, X, Y, W, H) ->
-    eg_pdf:set_fill_color(PDF, Color), 
-    eg_pdf:rectangle(PDF,{X, Y},{W,H}),
-    eg_pdf:path(PDF,fill),
-    eg_pdf:set_fill_color(PDF,black).
-    
+    eg_pdf:set_fill_color(PDF, Color),
+    eg_pdf:rectangle(PDF, {X, Y}, {W, H}),
+    eg_pdf:path(PDF, fill),
+    eg_pdf:set_fill_color(PDF, black).
 
-ensure_fonts_are_loaded(PDF, {_,TagMap}) ->
-    lists:foreach(fun({_,Face}) ->
-			  FontHandler = eg_richText:fontFromFace(Face),
-			  Font = FontHandler:fontName(),
-			  eg_pdf:ensure_font_gets_loaded(PDF, Font)
-		  end, TagMap).
+
+ensure_fonts_are_loaded(PDF, {_, TagMap}) ->
+    lists:foreach(fun({_, Face}) ->
+        FontHandler = eg_richText:fontFromFace(Face),
+        Font = FontHandler:fontName(),
+        eg_pdf:ensure_font_gets_loaded(PDF, Font)
+                  end, TagMap).

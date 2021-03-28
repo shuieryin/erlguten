@@ -28,15 +28,15 @@
 -include_lib("eunit/include/eunit.hrl").
 %% ============================================================================
 
-run_test()->
-	?debugMsg("Begin Test"),
+run_test() ->
+    ?debugMsg("Begin Test"),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF,a4),
-    eg_pdf:set_page(PDF,1),
+    eg_pdf:set_pagesize(PDF, a4),
+    eg_pdf:set_page(PDF, 1),
     eg_pdf:set_font(PDF, "Victorias-Secret", 40),
     eg_pdf_lib:moveAndShow(PDF, 50, 700, "Hello Joe from Gutenburg"),
 
     {Serialised, _PageNo} = eg_pdf:export(PDF),
-    file:write_file("./eg_test6.pdf",[Serialised]),
+    file:write_file("./ebin/eg_test6.pdf", [Serialised]),
     eg_pdf:delete(PDF).
 

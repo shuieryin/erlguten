@@ -1,3 +1,4 @@
+%% coding: latin-1
 %%==========================================================================
 %% Copyright (C) 2003 Joe Armstrong
 %%
@@ -73,7 +74,7 @@ run_test()->
     Fonts = lists:sort(eg_font_map:all_fonts()),
     showem(PDF, ?TOP_Y, Fonts, PageNo),
     {Serialised, _PageCount} = eg_pdf:export(PDF),
-    file:write_file("./eg_test4.pdf",[Serialised]),
+    file:write_file("./ebin/eg_test4.pdf",[Serialised]),
     eg_pdf:delete(PDF).
 
 showem(_PDF, _, [], _) ->
@@ -89,7 +90,7 @@ showem(PDF, Y, [H|T], PageNo) ->
     eg_pdf:set_font(PDF,H, ?FONT_H),
     X2 = X1 + 120,
     eg_pdf_lib:moveAndShow(PDF, X2, Y,
-                           "abcdefg ABCDEFG 1234567890 åäö ÅÄÖ"),
+                           "abcdefg ABCDEFG 1234567890 ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½"),
 
     eg_pdf:set_font(PDF,H, ?FONT_Hs),
     X3 = X1 + 20,

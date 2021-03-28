@@ -33,33 +33,33 @@
 %%
 %%  This produces a planning sheet for a selected size paper.
 %%
-run_test()->
+run_test() ->
     ?debugMsg("Begin Test"),
 %    SheetSize = io:get_line("Sheet Size (see eg_pdf:pagesize) : "),
 %    SheetName = string:to_lower(string:strip(SheetSize -- "\n")),
     SheetName = "a4",
     Size = list_to_atom(SheetName),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF,a4),
-    {0,0,Width,Height} = eg_pdf:pagesize(a4),
-    eg_pdf:set_page(PDF,1),
+    eg_pdf:set_pagesize(PDF, a4),
+    {0, 0, Width, Height} = eg_pdf:pagesize(a4),
+    eg_pdf:set_page(PDF, 1),
     eg_pdf_lib:showGrid(PDF, Size),
-    
+
     TestString = "Width = " ++ eg_pdf_op:n2s(Width) ++ " -- Height = " ++ eg_pdf_op:n2s(Height),
     LabelString = SheetName ++ " template planning sheet-",
     Stringsize = eg_pdf:get_string_width(PDF, "Times-Roman", 36, TestString),
     TargetSize = 24,
     Indent = round(Width * 0.15),
-    FontSize = round(TargetSize * (((Width - (2 * Indent)) / Stringsize ))),
-    eg_pdf:set_font(PDF,"Times-Roman", FontSize),
+    FontSize = round(TargetSize * (((Width - (2 * Indent)) / Stringsize))),
+    eg_pdf:set_font(PDF, "Times-Roman", FontSize),
     Base = round(Height * 0.71),
-    eg_pdf_lib:moveAndShow(PDF, Indent,Base, LabelString),
+    eg_pdf_lib:moveAndShow(PDF, Indent, Base, LabelString),
 
     eg_pdf_lib:moveAndShow(PDF, Indent, Base - (FontSize + 4), TestString),
     {Serialised, _PageNo} = eg_pdf:export(PDF),
-    CustomName = "./" ++ SheetName ++ "_planning_sheet.pdf",
-    ?debugFmt("Output to ~s~n",[CustomName]),
-    ok = file:write_file(CustomName,[Serialised]),
+    CustomName = "./ebin/" ++ SheetName ++ "_planning_sheet.pdf",
+    ?debugFmt("Output to ~s~n", [CustomName]),
+    ok = file:write_file(CustomName, [Serialised]),
     eg_pdf:delete(PDF).
 
 
