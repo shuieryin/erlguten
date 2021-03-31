@@ -2,6 +2,8 @@
   
 # ErlGuten
 
+[![Code Climate](http://img.shields.io/badge/code_climate-Erlang_23.3-brightgreen.svg)](http://www.erlang.org/downloads/23.3)
+
 ## Building
 
 ErlGuten uses rebar to build, it also has a Makefile wrapper around the rebar tasks.
