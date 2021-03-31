@@ -37,12 +37,8 @@
 test(1) -> word("hyphenation", eg_hyphen_rules_en_GB);
 test(2) -> partitions("supercalifragilisticexpialidocious",
     eg_hyphen_rules_en_GB);
-test(3) -> test_text(eg_hyphen_rules, text_en()); %% using old .tex based rules 
-test(4) -> test_text(eg_hyphen_rules_sv_SE, text_sv());
-test(5) -> test_text(eg_hyphen_rules_en_GB, text_en());
-test(6) -> test_text(eg_hyphen_rules_nb_NO, text_nb());
-test(7) -> test_text(eg_hyphen_rules_fi_FI, text_fi());
-test(8) -> test_text(eg_hyphen_rules_da_DK, text_da()).
+test(3) -> test_text(eg_hyphen_rules, text_en()); %% using old .tex based rules
+test(4) -> test_text(eg_hyphen_rules_en_GB, text_en()).
 
 
 test_text(Rules, Text) ->

@@ -32,10 +32,10 @@ run_test() ->
 test(1) ->
     text(1, 11);
 test(2) ->
-    %% Noraml para test - fits exactly into three lines
+    %% Normal para test - fits exactly into three lines
     eg_line_break:break_richText(text(1, 11), {justified, [190, 190, 190]});
 test(3) ->
-    %% This has some splill
+    %% This has some spill
     eg_line_break:break_richText(text(1, 11), {justified, [190, 190]});
 test(4) ->
     eg_line_break:break_richText(text(1, 11), {ragged, [190, 190, 190, 190]});

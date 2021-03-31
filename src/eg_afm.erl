@@ -95,7 +95,7 @@
 %% input
 
 
--export([make/2]).
+-export([make/2, parse/3]).
 
 -include_lib("kernel/include/file.hrl").
 
@@ -104,10 +104,13 @@
 
 make(BaseDir, FurtherPath) ->
     F = all_afms(BaseDir, FurtherPath),
-    {F1, _} = lists:mapfoldl(fun(File, I) ->
-        {{File, I}, I + 1}
-                             end, 1, F),
-    %% io:format("Found:~p~n",[F1]),
+    {F1, _} = lists:mapfoldl(
+        fun(File, I) ->
+            {{File, I}, I + 1}
+        end,
+        1,
+        F
+    ),
     F2 = lists:map(fun({File, Index}) ->
         {Mod, FontName, Type} = parse(File, Index, BaseDir),
         {File, Mod, FontName, Index, Type}
@@ -220,9 +223,16 @@ parse(F, Index, BaseDir) ->
            end,
     Cw = get_char_widths(L, get_encoding(L)),
     Kern = get_kerning_info(L, Cw),
-    Cw1 = lists:map(fun({Index1, Width, _Name}) ->
-        {Index1, Width}
-                    end, Cw),
+    Cw1 = lists:foldr(
+        fun
+            ({Index1, Width, _Name}, AccCw1) ->
+                [{Index1, Width} | AccCw1];
+            (_Other, AccCw1) ->
+                AccCw1
+        end,
+        [],
+        Cw
+    ),
     %% io:format("Cw1=~p~n",[Cw1]),
     {First, Last, Widths} = normalise_widths(Cw1),
     %% io:format("First=~p last=~p ~n",[First,Last]),
@@ -431,7 +441,7 @@ parse_char_data(S, "FontSpecific") ->
             C = list_to_integer(C0),
             {C, list_to_integer(W), Name};
         Other ->
-            io:format("wot is:~s:~pn", [S, Other])
+            io:format("wot is:~s:~p~n", [S, Other])
     end;
 parse_char_data(S, _Enc) ->
     case string:tokens(S, "\s\r\n") of
@@ -439,7 +449,7 @@ parse_char_data(S, _Enc) ->
             C = name_to_char(Name),
             {C, list_to_integer(W), Name};
         Other ->
-            io:format("wot is:~s:~pn", [S, Other])
+            io:format("wot is:~s:~p~n", [S, Other])
     end.
 
 %% FontDescriptor Flags 

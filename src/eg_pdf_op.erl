@@ -629,7 +629,9 @@ escapePdfText([C | Rest]) when is_list(C) ->
     [escapePdfText(C) |
         escapePdfText(Rest)];
 escapePdfText([C | Rest]) ->
-    [C | escapePdfText(Rest)].
+    [C | escapePdfText(Rest)];
+escapePdfText(Text) when is_binary(Text) ->
+    Text.
 
 i2s(I) ->
     integer_to_list(I).
